@@ -2,13 +2,11 @@ package hw4;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.*;
-import java.awt.event.*;
 import java.util.*;
 import java.util.concurrent.Semaphore;
 
 public class BounceThread extends Frame implements ActionListener {
-	private Canvas_m canvas;
+	private Canvas canvas;
 	private static ArrayList<Ball> ball_list = new ArrayList<Ball>();
 	private static int num_ball = 0;
 	private static Semaphore sema;
@@ -29,7 +27,6 @@ public class BounceThread extends Frame implements ActionListener {
 
 	public void actionPerformed(ActionEvent evt) {
 		if (evt.getActionCommand() == "Start") {
-			// �� 5�� �߰�
 			for (int i = 0; i < 5; i++) {
 				ball_list.add(new Ball(canvas, 20));
 				ball_list.get(ball_list.size() - 1).x += 10 * ball_list.get(ball_list.size() - 1).dx;
@@ -43,19 +40,11 @@ public class BounceThread extends Frame implements ActionListener {
 	public static void main(String[] args) {
 		Frame f = new BounceThread();
 		f.setSize(400, 300);
-		WindowDestroyer listener = new WindowDestroyer(); // ������ ���� ��ư
+		WindowDestroyer listener = new WindowDestroyer(); 
 		f.addWindowListener(listener);
 		f.setVisible(true);
 	}
 
-	public static class WindowDestroyer extends WindowAdapter {
-		public void windowClosing(WindowEvent e) {
-			System.exit(0);
-		}
-	}
-
-	// canvas�� ����ؼ� paint�� �������̵��Ͽ� canvas�� ball���� �׸��� �Ͽ���. (�̴�
-	// repaint���� ���δ�)
 	class Canvas_m extends Canvas {
 		public Canvas_m() {
 			super();
@@ -74,10 +63,10 @@ public class BounceThread extends Frame implements ActionListener {
 		private Canvas box;
 		public int XSIZE = 20;
 		public int YSIZE = 20;
-		public int x;
-		public int y;
-		public int dx;
-		public int dy;
+		public int x = 0;
+		public int y = 0;
+		public int dx = 2;
+		public int dy = 2;
 
 		public Ball(Canvas c, int size) {
 			num_ball++;
@@ -117,8 +106,6 @@ public class BounceThread extends Frame implements ActionListener {
 
 		public void collision() {
 			for (int i = 0; i < ball_list.size(); i++) {
-				// �� ���� �Ÿ��� �������� ���� ���� ���ƴ����� Ȯ���Ѵ�.
-				// ���� �������� ball Thread�� 2�� �߰��ϰ�, ũ�⸦ ������ ���δ�.
 				int d_square = ((x + dx) - (ball_list.get(i).x + ball_list.get(i).dx))
 						* ((x + dx) - (ball_list.get(i).x + ball_list.get(i).dx))
 						+ ((y + dy) - (ball_list.get(i).y + ball_list.get(i).dy))
@@ -155,25 +142,18 @@ public class BounceThread extends Frame implements ActionListener {
 		}
 
 		public void run() {
-			// move�� collision�� �����ϰ� �����ð����� ����Ѵ�.
-			// �̶� ����ȭ�� ���־� move�� collision�� �� �����常 ����ϵ��� �Ѵ�.
-			// �׸��� ���� repaint�� ���� �׸��� �׷��ش�.
 			while (true) {
 				try {
 					sema.acquire();
-				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+				} catch (InterruptedException e) {
 				}
 				move();
 				collision();
-				// ���� ���� ũ�⺸�� �۾����ٸ� �ش� �������� ������ ������.
-				// ���� ���� ��� �浹�� �Ͽ� �������ٸ� �����Ѵ�.
 				if (XSIZE < 2 && YSIZE < 2) {
 					num_ball--;
-					sema.release();
 					if (num_ball == 0)
 						System.exit(0);
+					sema.release();
 					break;
 				} else {
 					sema.release();
